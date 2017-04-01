@@ -10,3 +10,5 @@ https://github.com/openshift/origin/releases
 $ oc cluster up
 ```
 https://github.com/openshift/origin/blob/master/docs/cluster_up_down.md
+
+.
