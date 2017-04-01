@@ -1,0 +1,12 @@
+{
+  "kind": "Project",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "review-app-pr-123456789",
+    "labels": {
+      "usage": "review-app",
+      "pr": "12345789"
+    }
+  }
+}
+

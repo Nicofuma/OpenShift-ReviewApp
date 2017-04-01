@@ -1,0 +1,140 @@
+apiVersion: v1
+kind: Template
+
+parameters:
+  - description: The URL of the repository with your application source code
+    name: SOURCE_REPOSITORY_URL
+    value: ~
+  - description: Set this to a branch name, tag or other ref of your repository if you are not using the default branch
+    name: SOURCE_REPOSITORY_REF
+    value: ~
+  - description: Github API token
+    name: GITHUB_API_TOKEN
+    value: ~
+  - description: Github WebHook Secret
+    name: GITHUB_WEBHOOKS_SECRET
+    value: ~
+  - description: OpenShift masters URL
+    name: OPENSHIFT_MASTER
+    value: https://openshift.default.svc.cluster.local
+  - description: OpenShift Token file path
+    name: OPENSHIFT_TOKEN_FILE
+    value: /var/run/secrets/kubernetes.io/serviceaccount/token
+  - description: OpenShift CA file path
+    name: OPENSHIFT_CA_FILE
+    value: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+
+metadata:
+  name: template-review-app-hooks
+  annotations:
+    description: "Template for the webhooks of a review application"
+    iconClass: icon-php
+
+labels:
+    template: template-review-app-hooks
+
+objects:
+  -
+    apiVersion: v1
+    kind: ImageStream
+    metadata:
+      name: is-review-app
+  -
+    apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      name: bc-review-app
+    spec:
+      source:
+        type: git
+        git:
+          uri: ${SOURCE_REPOSITORY_URL}
+          ref: ${SOURCE_REPOSITORY_REF}
+          recursive: false
+        contextDir: /hooks-app
+      strategy:
+        type: Source
+        sourceStrategy:
+          from:
+            kind: ImageStreamTag
+            namespace: openshift
+            name: php:7.0
+          env:
+            - name: BUILD_LOGLEVEL
+              value: "1"
+      output:
+        to:
+          kind: ImageStreamTag
+          name: is-review-app:latest
+      triggers: []
+    status:
+      lastVersion: 0
+
+  -
+    apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      name: dc-review-app
+    spec:
+      strategy:
+        type: Rolling
+      replicas: 1
+      selector:
+        deploymentconfig: dc-review-app
+      template:
+        metadata:
+          labels:
+            deploymentconfig: dc-review-app
+        spec:
+          containers:
+            - name: replica-review-app
+              image: is-review-app
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+              env:
+                - name: TZ
+                  value: "/usr/share/zoneinfo/UTC"
+                - name: GITHUB_API_TOKEN
+                  value: ${GITHUB_API_TOKEN}
+                - name: GITHUB_WEBHOOKS_SECRET
+                  value: ${GITHUB_WEBHOOKS_SECRET}
+                - name: OPENSHIFT_MASTER
+                  value: ${OPENSHIFT_MASTER}
+                - name: OPENSHIFT_TOKEN_FILE
+                  value: ${OPENSHIFT_TOKEN_FILE}
+                - name: OPENSHIFT_CA_FILE
+                  value: ${OPENSHIFT_CA_FILE}
+      triggers:
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames: [replica-review-app]
+            from:
+              kind: ImageStreamTag
+              name: is-review-app:latest
+  -
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: svc-review-app
+    spec:
+      selector:
+        deploymentconfig: dc-review-app
+      ports:
+        - name: web
+          port: 8080
+          targetPort: 8080
+  -
+    apiVersion: v1
+    kind: Route
+    metadata:
+      name: review-app
+    spec:
+      to:
+        kind: Service
+        name: svc-review-app
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Allow
+    status: {}
