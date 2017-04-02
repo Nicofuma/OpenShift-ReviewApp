@@ -62,6 +62,8 @@ objects:
           env:
             - name: BUILD_LOGLEVEL
               value: "1"
+            - name: DOCUMENTROOT
+              value: /web
       output:
         to:
           kind: ImageStreamTag
