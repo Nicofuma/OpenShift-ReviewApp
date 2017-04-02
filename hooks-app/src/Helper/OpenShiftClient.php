@@ -3,6 +3,7 @@
 namespace Phpbb\DevHooks\Helper;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\ResponseInterface;
@@ -47,9 +48,16 @@ class OpenShiftClient
         $options = isset($args[1]) ? $args[1] : [];
         $options = $this->completeOptions($options);
 
-        return substr($method, -5) === 'Async'
-            ? $this->client->requestAsync(substr($method, 0, -5), $uri, $options)
-            : $this->client->request($method, $uri, $options);
+        try {
+            return substr($method, -5) === 'Async'
+                ? $this->client->requestAsync(substr($method, 0, -5), $uri, $options)
+                : $this->client->request($method, $uri, $options);
+        } catch (ClientException $e) {
+            $r = $e->getResponse();
+            if ($r !== null) {
+                var_dump($r->getBody()->getContents());
+            }
+        }
     }
 
     private function completeOptions(array $options) : array
