@@ -63,7 +63,7 @@ class OpenShiftClient
         }
 
         if ($this->certFile !== null && !isset($options[RequestOptions::CERT])) {
-            $options[RequestOptions::CERT] = $this->certFile;
+            $options[RequestOptions::VERIFY] = $this->certFile;
         }
 
         return $options;
