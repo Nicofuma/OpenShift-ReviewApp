@@ -55,6 +55,5 @@ class GithubHelper
                 $options
             )
         ;
-        var_dump($response);
     }
 }
