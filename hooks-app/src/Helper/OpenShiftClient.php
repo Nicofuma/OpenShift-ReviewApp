@@ -43,25 +43,13 @@ class OpenShiftClient
             throw new \InvalidArgumentException('Magic request methods require a URI and optional options array');
         }
 
-        $uria = $args[0];
+        $uri = $args[0];
         $options = isset($args[1]) ? $args[1] : [];
         $options = $this->completeOptions($options);
 
-        var_dump($uria, $options);
-
-
-        // for BC we accept null which would otherwise fail in uri_for
-        $uri = \GuzzleHttp\Psr7\uri_for($uria === null ? '' : $uria);
-
-        if (isset($config['base_uri'])) {
-            $uri = \GuzzleHttp\Psr7\UriResolver::resolve(\GuzzleHttp\Psr7\uri_for($config['base_uri']), $uri);
-        }
-
-        var_dump($uri->getScheme() === '' && $uri->getHost() !== '' ? $uri->withScheme('http') : $uri);
-
         return substr($method, -5) === 'Async'
-            ? $this->client->requestAsync(substr($method, 0, -5), $uria, $options)
-            : $this->client->request($method, $uria, $options);
+            ? $this->client->requestAsync(substr($method, 0, -5), $uri, $options)
+            : $this->client->request($method, $uri, $options);
     }
 
     private function completeOptions(array $options) : array

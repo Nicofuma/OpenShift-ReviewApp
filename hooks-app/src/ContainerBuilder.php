@@ -37,7 +37,7 @@ class ContainerBuilder
             'client.openshift' => function ($c) {
                 return new OpenShiftClient(
                     new Client([
-                        'base_url' => $c['openshift_master_url'],
+                        'base_uri' => $c['openshift_master_url'],
                     ]), $c['openshift_token_file'], $c['openshift_ca_file']
                 );
             },
