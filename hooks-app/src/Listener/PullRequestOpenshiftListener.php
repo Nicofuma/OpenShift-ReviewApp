@@ -51,6 +51,8 @@ class PullRequestOpenshiftListener implements Listener
                     $this->githubHelper->setCommitStatus($commitData, $statusData, 'success', 'Environment deployed');
                 } catch (\Throwable $e) {
                     $this->githubHelper->setCommitStatus($commitData, $statusData, 'failure', 'Cannot deploy environment');
+
+                    throw $e;
                 }
 
                 break;

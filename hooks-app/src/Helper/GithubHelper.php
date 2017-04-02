@@ -44,7 +44,7 @@ class GithubHelper
             $options['target_url'] = $targetUrl;
         }
 
-        $this
+        $response = $this
             ->getAuthenticatedClient()
             ->repository()
             ->statuses()
@@ -55,5 +55,6 @@ class GithubHelper
                 $options
             )
         ;
+        var_dump($response);
     }
 }
