@@ -15,7 +15,7 @@ class OpenShiftHelper
 
     public function createEnvironment(string $envName, array $labels = []) : array
     {
-        $response = $this->client->post('/oapi/v1/projects', [
+        $response = $this->client->post('/oapi/v1/projectrequests', [
             RequestOptions::JSON => [
                 'kind' => 'Project',
                 'apiVersion' => 'v1',
