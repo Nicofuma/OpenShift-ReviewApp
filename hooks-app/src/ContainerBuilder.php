@@ -48,7 +48,8 @@ class ContainerBuilder
             },
             'listener.pull_request.openshift' => function ($c) {
                 return new Listener\PullRequestOpenshiftListener(
-                    $c['helper.openshift']
+                    $c['helper.openshift'],
+                    $c['helper.github']
                 );
             },
         ];
