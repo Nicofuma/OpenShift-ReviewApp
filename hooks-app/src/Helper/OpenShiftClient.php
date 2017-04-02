@@ -54,8 +54,12 @@ class OpenShiftClient
 
     private function completeOptions(array $options) : array
     {
-        if (!isset($options[RequestOptions::AUTH])) {
-            $options[RequestOptions::AUTH] = ['Bearer', $this->getToken()];
+        if (!isset($options[RequestOptions::HEADERS])) {
+            $options[RequestOptions::HEADERS] = [];
+        }
+
+        if (!isset($options[RequestOptions::HEADERS]['Authorization'])) {
+            $options[RequestOptions::HEADERS]['Authorization'] = 'Bearer '.$this->getToken();
         }
 
         if ($this->certFile !== null && !isset($options[RequestOptions::CERT])) {
