@@ -15,15 +15,15 @@ class OpenShiftHelper
 
     public function createEnvironment(string $envName, array $labels = []) : array
     {
-        $response = $this->client->post('/oapi/v1/projects', [
-            RequestOptions::JSON => \GuzzleHttp\json_encode([
+        $response = $this->client->post('/oapi/v1/projectrequests', [
+            RequestOptions::JSON => [
                 'kind' => 'Project',
                 'apiVersion' => 'v1',
                 'metadata' => [
                     'name' => $envName,
                     'labels' => $labels,
                 ]
-            ]),
+            ],
         ]);
 
         if ($response->getStatusCode() !== 200) {
